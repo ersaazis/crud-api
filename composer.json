@@ -1,5 +1,5 @@
 {
-    "name": "ersaazis/CrudApi",
+    "name": "ersaazis/crudapi",
     "description": "api generator for lumen",
     "authors": [
         {
@@ -13,13 +13,13 @@
     },
     "autoload": {
         "psr-4": {
-            "ersaazis\\CrudApi\\": "src/"
+            "ersaazis\\crudapi\\": "src/"
         }
     },
     "extra": {
         "laravel": {
             "providers": [
-                "ersaazis\\CrudApi\\ServiceProvider"
+                "ersaazis\\crudapi\\ServiceProvider"
             ]
         }
     }
