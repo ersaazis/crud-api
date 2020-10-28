@@ -1,0 +1,14 @@
+{
+	"id": "{{{id}}}",
+	"name": "CRUDAPI",
+	"description": "",
+	"order": [],
+	"folders": [
+		{{{folders}}}
+	],
+	"folders_order": {{{folders_order}}},
+	"public": false,
+	"requests": [
+		{{{requests}}}
+	]
+}

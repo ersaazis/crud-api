@@ -25,6 +25,7 @@ class ApiCrudMaker extends Command
                             {--t|table= : [all | table number] }
                             {--p|path-models=App\Models : Namespace to Models (Directories will be created) }
                             {--r|routes=Y : [Y | N] }
+                            {--m|postman=N : [Y | N] }
                             {--b|base-model=N : [Y | N] }';
 
     /**
@@ -46,6 +47,12 @@ class ApiCrudMaker extends Command
      * @var boolean
      */
     private $routes = true;
+
+        /**
+     * [$postman description]
+     * @var boolean
+     */
+    private $postman = true;
 
     /**
      * [$tables description]
@@ -123,6 +130,20 @@ class ApiCrudMaker extends Command
         }
     }
 
+    /**
+     * [processOptionRoutes description]
+     * @return [type] [description]
+     */
+    public function processOptionPostman()
+    {
+        $this->alert('POSTMAN PROCESS');
+
+        // Verify option TABLE
+        if (in_array(strtoupper(trim($this->option('postman'))), ['N','NO','FALSE'])) {
+            $this->postman = false;
+        }
+
+    }
 
     /**
      * [processOptionRoutes description]
@@ -834,7 +855,6 @@ class ApiCrudMaker extends Command
                 'plural_uc',
                 'plural',
             ],
-
         ];
     }
 
@@ -937,6 +957,66 @@ class ApiCrudMaker extends Command
     }
 
     /**
+     * [processRoutes description]
+     * @return [type] [description]
+     */
+    public function processPostman()
+    {
+        if ($this->postman) {
+            $collectionId=Str::random(10);
+            $main = $this->getTemplate('main_postman');
+            $request = $this->getTemplate('request_postman');
+            $folder = $this->getTemplate('folder_postman');
+            $request_postman = '';
+            $folder_postman = '';
+            $folders_order=[];
+            
+            foreach ($this->tables as $table) {
+                // dump($table);
+                array_push($folders_order,'folder-'.Str::kebab($table->plural));
+                $m = [
+                    'id' => $table->name,
+                    'url' => url(Str::kebab($table->plural)),
+                    'collectionId' => $collectionId,
+                    'folder' => Str::kebab($table->plural),
+                ];
+
+                $temp = $request;
+                foreach ($m as $key=>$mark){
+                    $temp = str_replace('{{{' . $key . '}}}', trim($mark), $temp);
+                }
+                $request_postman .= $temp;
+
+                $m = [
+                    'id' => $table->name,
+                    'name' => Str::upper($table->name),
+                    'collectionId' => $collectionId,
+                ];
+
+                $temp = $folder;
+                foreach ($m as $key=>$mark){
+                    $temp = str_replace('{{{' . $key . '}}}', trim($mark), $temp);
+                }
+                $folder_postman .= $temp;
+            }
+            $m = [
+                'id' => $collectionId,
+                'folders' => substr_replace($folder_postman,'',-3,1),
+                'folders_order' => json_encode($folders_order),
+                'requests' => substr_replace($request_postman,'',-3,1),
+            ];
+
+            foreach ($m as $key=>$mark){
+                $main = str_replace('{{{' . $key . '}}}', trim($mark), $main);
+            }
+
+            $fileWeb = fopen(base_path() . '/CRUDAPI.json', 'w+');
+            fwrite($fileWeb, $main);
+            fclose($fileWeb);
+        }
+    }
+
+    /**
      * Execute the console command.
      *
      * @return mixed
@@ -944,24 +1024,29 @@ class ApiCrudMaker extends Command
     public function handle()
     {
 
-        // Process Routes
-        $this->processOptionRoutes();
+        // // Process Routes
+        // $this->processOptionRoutes();
 
-        // Process Path Models
-        $this->processOptionPathModels();
+        // // Process Path Models
+        // $this->processOptionPathModels();
+
+        // Process Postman
+        $this->processOptionPostman();
 
         // Process TABLES
         $this->processOptionTable();
 
-        // Process Controller
-        $this->processFile('controller');
+        // // Process Controller
+        // $this->processFile('controller');
 
-        // Process Model
-        $this->processFile('model');
+        // // Process Model
+        // $this->processFile('model');
+
+        // // Process Routes
+        // $this->processRoutes();
 
         // Process Routes
-        $this->processRoutes();
-
+        $this->processPostman();
 
     }
 }
