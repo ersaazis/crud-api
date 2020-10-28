@@ -1,6 +1,6 @@
 <?php
 
-namespace ersaazis\CrudApi;
+namespace ersaazis\crudapi;
 
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\Config\Repository;
