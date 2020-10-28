@@ -1,6 +1,6 @@
 <?php
 
-namespace ersaazis\CrudApi\Console\Commands;
+namespace ersaazis\crudapi\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
