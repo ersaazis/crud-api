@@ -1024,11 +1024,11 @@ class ApiCrudMaker extends Command
     public function handle()
     {
 
-        // // Process Routes
-        // $this->processOptionRoutes();
+        // Process Routes
+        $this->processOptionRoutes();
 
-        // // Process Path Models
-        // $this->processOptionPathModels();
+        // Process Path Models
+        $this->processOptionPathModels();
 
         // Process Postman
         $this->processOptionPostman();
@@ -1036,14 +1036,14 @@ class ApiCrudMaker extends Command
         // Process TABLES
         $this->processOptionTable();
 
-        // // Process Controller
-        // $this->processFile('controller');
+        // Process Controller
+        $this->processFile('controller');
 
-        // // Process Model
-        // $this->processFile('model');
+        // Process Model
+        $this->processFile('model');
 
-        // // Process Routes
-        // $this->processRoutes();
+        // Process Routes
+        $this->processRoutes();
 
         // Process Routes
         $this->processPostman();
