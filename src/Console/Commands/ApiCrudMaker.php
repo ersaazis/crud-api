@@ -192,19 +192,12 @@ class ApiCrudMaker extends Command
                 continue;
             }
 
-            $prepareName = function ($name, $format) {
-                $name = explode('_', $name);
-                $name[count($name) - 1] = Pluralizer::{$format}(end($name));
-
-                return implode('_', $name);
-            };
-
             // Make the table object
             $objTab = new \stdClass();
             $objTab->name = $t->{'Tables_in_' . env('DB_DATABASE')};
             $objTab->relationTable = false;
-            $objTab->singular = Str::camel($prepareName($objTab->name, 'singular'));
-            $objTab->plural = Str::camel($prepareName($objTab->name, 'plural'));
+            $objTab->singular = Str::camel($this->singular($objTab->name));
+            $objTab->plural = Str::camel($this->plural($objTab->name));
             $objTab->snakeSingular = Str::snake($objTab->singular);
             $objTab->snakePlural = Str::snake($objTab->plural);
             $objTab->fieldDisplay = false;
@@ -226,8 +219,8 @@ class ApiCrudMaker extends Command
             $tabs = explode('_', $table->name);
 
             if (count($tabs) === 2) {
-                $tab1 = Pluralizer::plural($tabs[0]);
-                $tab2 = Pluralizer::plural($tabs[1]);
+                $tab1 = $this->plural($tabs[0]);
+                $tab2 = $this->plural($tabs[1]);
                 $rel1 = false;
                 $rel2 = false;
 
@@ -341,7 +334,7 @@ class ApiCrudMaker extends Command
         $objField->unsigned = strpos($field->Type, 'unsigned') !== false ? true : false;
         $objField->required = $field->Null === 'NO' ? true : false;
         $objField->pk = $field->Key === 'PRI' ? true : false;
-        $objField->fk = empty($fk) ? (empty($fk2) ? false : Pluralizer::plural($fk2[1])) : Pluralizer::plural($fk[1]);
+        $objField->fk = empty($fk) ? (empty($fk2) ? false : $this->plural($fk2[1])) : $this->plural($fk[1]);
         $objField->display = false;
         $objField->unique = $field->Key === 'UNI' ? true : false;
         $objField->default = $field->Default;
@@ -512,7 +505,7 @@ class ApiCrudMaker extends Command
         $prepareUses = function () use ($objTable) {
             $uses = 'use ' . $this->pathModels . ucwords($objTable->singular) . ";\n";
             foreach ($objTable->belongsTo as $b) {
-                $uses .= 'use ' . $this->pathModels . ucwords(Pluralizer::singular($b)) . ";\n";
+                $uses .= 'use ' . $this->pathModels . ucwords($this->singular($b)) . ";\n";
             }
 
             return $uses;
@@ -616,7 +609,7 @@ class ApiCrudMaker extends Command
             $with = null;
 
             foreach ($objTable->belongsTo as $b) {
-                $with .= "'" . Pluralizer::singular($b) . "', ";
+                $with .= "'" . $this->singular($b) . "', ";
             }
 
             return $with;
@@ -1048,5 +1041,18 @@ class ApiCrudMaker extends Command
         // Process Routes
         $this->processPostman();
 
+    }
+
+    private function singular($text){
+        if(substr($text,0,5) == "data_")
+            echo str_replace("data_","",$text);
+        else
+            echo $text;
+    }
+    private function plural($text){
+        if(strpos($text,"data_") === false)
+            echo "data_".$text;
+        else
+            echo $text;
     }
 }
