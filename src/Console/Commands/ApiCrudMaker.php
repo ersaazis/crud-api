@@ -89,9 +89,8 @@ class ApiCrudMaker extends Command
                     $m = [
                         'plural_uc' => ucwords($table->plural),
                         'plural' => $table->plural,
-                        'kebab_plural' => Str::kebab($table->plural),
+                        'kebab_plural' => str_replace('data-','',Str::kebab($table->plural)),
                     ];
-
                     $temp = $template;
 
                     foreach ($this->marks()['routes'] as $mark){
@@ -111,7 +110,7 @@ class ApiCrudMaker extends Command
                 $m = [
                     'plural_uc' => ucwords($table->plural),
                     'plural' => $table->plural,
-                    'kebab_plural' => Str::kebab($table->plural),
+                    'kebab_plural' => str_replace('data-','',Str::kebab($table->plural)),
                 ];
 
                 $temp = $template;
@@ -216,7 +215,8 @@ class ApiCrudMaker extends Command
 
         // Register belongsToMany
         foreach ($this->tables as $table) {
-            $tabs = explode('_', $table->name);
+            // $tabs = explode('_', $table->name);
+            $tabs = explode('_', str_replace("table_",'',$table->name));
 
             if (count($tabs) === 2) {
                 $tab1 = $this->plural($tabs[0]);
@@ -343,9 +343,15 @@ class ApiCrudMaker extends Command
 
 
         $displays = [
+                        'nama',
+                        $table->snakeSingular . '_nama',
+                        'nama_' . $table->snakeSingular,
                         'name',
                         $table->snakeSingular . '_name',
                         'name_' . $table->snakeSingular,
+                        'judul',
+                        $table->snakeSingular . '_judul',
+                        'judul_' . $table->snakeSingular,
                         'title',
                         $table->snakeSingular . '_title',
                         'title_' . $table->snakeSingular,
@@ -968,12 +974,11 @@ class ApiCrudMaker extends Command
                 // dump($table);
                 array_push($folders_order,'folder-'.Str::kebab($table->plural));
                 $m = [
-                    'id' => $table->name,
-                    'url' => url(Str::kebab($table->plural)),
+                    'id' => Str::kebab($table->plural),
+                    'url' => url(str_replace('data-','',Str::kebab($table->plural))),
                     'collectionId' => $collectionId,
                     'folder' => Str::kebab($table->plural),
                 ];
-
                 $temp = $request;
                 foreach ($m as $key=>$mark){
                     $temp = str_replace('{{{' . $key . '}}}', trim($mark), $temp);
@@ -981,7 +986,7 @@ class ApiCrudMaker extends Command
                 $request_postman .= $temp;
 
                 $m = [
-                    'id' => $table->name,
+                    'id' => Str::kebab($table->plural),
                     'name' => Str::upper($table->name),
                     'collectionId' => $collectionId,
                 ];
@@ -1002,7 +1007,6 @@ class ApiCrudMaker extends Command
             foreach ($m as $key=>$mark){
                 $main = str_replace('{{{' . $key . '}}}', trim($mark), $main);
             }
-
             $fileWeb = fopen(base_path() . '/CRUDAPI.json', 'w+');
             fwrite($fileWeb, $main);
             fclose($fileWeb);
@@ -1045,14 +1049,14 @@ class ApiCrudMaker extends Command
 
     private function singular($text){
         if(substr($text,0,5) == "data_")
-            echo str_replace("data_","",$text);
+            return str_replace("data_","",$text);
         else
-            echo $text;
+            return $text;
     }
     private function plural($text){
         if(strpos($text,"data_") === false)
-            echo "data_".$text;
+            return "data_".$text;
         else
-            echo $text;
+            return $text;
     }
 }
